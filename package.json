@@ -5,7 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev src/index.ts --respawn --transpile-only",
-    "build": "tsc"
+    "build": "tsc",
+    "example": "node examples/sample.js",
+    "publish": "npm run build && npm publish"
   },
   "keywords": [],
   "author": "Miguel Silva Pinheiro <LearXD>",

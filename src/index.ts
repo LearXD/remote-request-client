@@ -3,24 +3,29 @@ import { RequestManagerConfig } from "./types";
 import Request from "./utils/request";
 import Response from "./utils/response";
 
-export default class RequestManager {
+export class RequestManager {
 
     private requestClient: WebSocketClient;
 
     constructor(private config: RequestManagerConfig) {
-        this.requestClient = new WebSocketClient({
-            address: config.address,
-            port: config.port
-        });
+        this.requestClient = new WebSocketClient({ address: config.address, port: config.port });
     }
 
     public async init() {
         await this.requestClient.init();
-        this.requestClient.send({ type: 'identifier', identifier: 'LearXD' })
+        this.requestClient.send({ type: 'identifier', identifier: this.config.identifier })
         return true
     }
 
-    public request(url: string, options: RequestInit = {}): Promise<string> {
+    /**
+     * @description Define the identifier of the client you want to execute the request, the other parameters are identical to fetch()
+     * 
+     * @param idendifier 
+     * @param url 
+     * @param options 
+     * @returns Promise<string>
+     */
+    public request(idendifier: string, url: string, options: RequestInit = {}): Promise<string> {
         return new Promise((resolve, reject) => {
             const request = new Request(url, options, this.config.identifier);
             this.requestClient.setRequestCallback(request.getUuid(), (response: Response) => {
