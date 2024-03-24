@@ -27,7 +27,7 @@ export class RequestManager {
      */
     public request(idendifier: string, url: string, options: RequestInit = {}): Promise<string> {
         return new Promise((resolve, reject) => {
-            const request = new Request(url, options, this.config.identifier);
+            const request = new Request(url, options, idendifier);
             this.requestClient.setRequestCallback(request.getUuid(), (response: Response) => {
                 resolve(response.getData())
             })

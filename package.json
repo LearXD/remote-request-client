@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev src/index.ts --respawn --transpile-only",
     "build": "tsc",
-    "example": "node examples/sample.js",
+    "example": "npm run build && node examples/sample.js",
     "publish": "npm run build && npm publish"
   },
   "keywords": [],
