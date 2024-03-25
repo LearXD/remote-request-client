@@ -1,5 +1,7 @@
+/// <reference types="node" />
 import { WebSocketClientConfig } from "./types";
-export default class WebSocketClient {
+import EventEmitter from "events";
+export default class WebSocketClient extends EventEmitter {
     private config;
     private client;
     private requestsPool;

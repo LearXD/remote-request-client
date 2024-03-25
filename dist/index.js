@@ -16,16 +16,40 @@ exports.RequestManager = void 0;
 const websocket_client_1 = __importDefault(require("./services/websocket-client"));
 const request_1 = __importDefault(require("./utils/request"));
 class RequestManager {
+    /**
+     * @param config Define the configuration of the RequestManager
+     */
     constructor(config) {
         this.config = config;
         this.requestClient = new websocket_client_1.default({ address: config.address, port: config.port });
     }
+    /**
+     * @description Initialize the WebSocketClient instance
+     *
+     * @returns Promise<boolean>
+     */
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.requestClient.init();
             this.requestClient.send({ type: 'identifier', identifier: this.config.identifier });
             return true;
         });
+    }
+    /**
+     * @description Get the identifier of the client
+     *
+     * @returns string
+     */
+    getIdentifier() {
+        return this.config.identifier;
+    }
+    /**
+     * @description Get the WebSocketClient instance
+     *
+     * @returns WebSocketClient
+     */
+    getRequestClient() {
+        return this.requestClient;
     }
     /**
      * @description Define the identifier of the client you want to execute the request, the other parameters are identical to fetch()

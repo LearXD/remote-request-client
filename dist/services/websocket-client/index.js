@@ -16,8 +16,10 @@ const ws_1 = __importDefault(require("ws"));
 const request_1 = __importDefault(require("../../utils/request"));
 const response_1 = __importDefault(require("../../utils/response"));
 const error_1 = __importDefault(require("../../utils/error"));
-class WebSocketClient {
+const events_1 = __importDefault(require("events"));
+class WebSocketClient extends events_1.default {
     constructor(config) {
+        super();
         this.config = config;
         this.requestsPool = new Map();
         this.client = new ws_1.default(`ws://${config.address}:${config.port}`);
@@ -26,13 +28,15 @@ class WebSocketClient {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 this.client.on('open', () => {
+                    this.emit('open');
                     this.client.on('message', (data) => {
                         try {
                             const payload = JSON.parse(data);
                             switch (payload.type) {
                                 case 'request':
                                     const request = request_1.default.fromString(payload.data);
-                                    console.log(`Executing request ${request.getUuid()}`);
+                                    this.emit('request', request);
+                                    process.argv.includes('--debug') && console.log(`Executing request ${request.getUuid()}`);
                                     request.execute()
                                         .then((data) => {
                                         this.send({
@@ -48,10 +52,12 @@ class WebSocketClient {
                                     });
                                     break;
                                 case 'response':
-                                    console.log(`Received response ${payload.uuid}`);
+                                    process.argv.includes('--debug') && console.log(`Received response ${payload.uuid}`);
+                                    const response = response_1.default.fromString(payload.data);
+                                    this.emit('response', response);
                                     const callback = this.getRequestCallback(payload.uuid);
                                     if (callback) {
-                                        callback(response_1.default.fromString(payload.data));
+                                        callback(response);
                                         this.requestsPool.delete(payload.uuid);
                                     }
                                     break;
@@ -72,6 +78,15 @@ class WebSocketClient {
                         }
                     });
                     resolve(true);
+                });
+                this.client.on('error', (error) => {
+                    console.error('WebSocket error', error);
+                });
+                this.client.on('close', () => {
+                    console.log('WebSocket Client closed connection. Reconnecting...');
+                    this.client.removeAllListeners();
+                    this.client = new ws_1.default(`ws://${this.config.address}:${this.config.port}`);
+                    this.init();
                 });
             });
         });
