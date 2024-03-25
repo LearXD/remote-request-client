@@ -1,6 +1,6 @@
 {
   "name": "remote-request-client",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A client capable of communicating with a remote request server",
   "main": "dist/index.js",
   "scripts": {
