@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ws_1 = __importDefault(require("ws"));
 const request_1 = __importDefault(require("../../utils/request"));
 const response_1 = __importDefault(require("../../utils/response"));
+const error_1 = __importDefault(require("../../utils/error"));
 class WebSocketClient {
     constructor(config) {
         this.config = config;
@@ -31,6 +32,7 @@ class WebSocketClient {
                             switch (payload.type) {
                                 case 'request':
                                     const request = request_1.default.fromString(payload.data);
+                                    console.log(`Executing request ${request.getUuid()}`);
                                     request.execute()
                                         .then((data) => {
                                         this.send({
@@ -39,13 +41,28 @@ class WebSocketClient {
                                             data: new response_1.default(request.getUuid(), data).toString()
                                         });
                                     })
-                                        .catch((error) => { });
+                                        .catch((error) => {
+                                        var _a;
+                                        this.send(new error_1.default((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : "Request failed", request.getUuid()).toString());
+                                        return;
+                                    });
                                     break;
                                 case 'response':
+                                    console.log(`Received response ${payload.uuid}`);
                                     const callback = this.getRequestCallback(payload.uuid);
                                     if (callback) {
                                         callback(response_1.default.fromString(payload.data));
                                         this.requestsPool.delete(payload.uuid);
+                                    }
+                                    break;
+                                case 'error':
+                                    const error = error_1.default.fromString(data);
+                                    if (error.getRequestUuid()) {
+                                        const callback = this.getRequestCallback(error.getRequestUuid());
+                                        if (callback) {
+                                            callback(null, error);
+                                            this.requestsPool.delete(payload.uuid);
+                                        }
                                     }
                                     break;
                             }

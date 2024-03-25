@@ -3,14 +3,18 @@ const { RequestManager } = require('../dist/index')
 const requestManager = new RequestManager({
     address: 'localhost',
     port: 8080,
-    identifier: 'LearXD' // your identifier
+    identifier: 'Example1' // your identifier
 })
 
 requestManager.init().then(() => {
     requestManager.request(
-        'LearXD', // sending to myself
-        'https://api.ipify.org/?format=json'
-    ).then((response) => {
-        console.log(response)
-    })
+        'Example2',
+        'https://api.iipify.org/?format=json'
+    )
+        .then((response) => {
+            console.log('your response', response)
+        })
+        .catch((error) => {
+            console.error('your error', error)
+        });
 })

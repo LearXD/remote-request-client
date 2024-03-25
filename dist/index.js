@@ -38,7 +38,11 @@ class RequestManager {
     request(idendifier, url, options = {}) {
         return new Promise((resolve, reject) => {
             const request = new request_1.default(url, options, idendifier);
-            this.requestClient.setRequestCallback(request.getUuid(), (response) => {
+            this.requestClient.setRequestCallback(request.getUuid(), (response, error) => {
+                if (error) {
+                    reject(error.getMessage());
+                    return;
+                }
                 resolve(response.getData());
             });
             this.requestClient.send({

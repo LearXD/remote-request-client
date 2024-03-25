@@ -1,5 +1,6 @@
 import WebSocketClient from "./services/websocket-client";
 import { RequestManagerConfig } from "./types";
+import Error from "./utils/error";
 import Request from "./utils/request";
 import Response from "./utils/response";
 
@@ -28,7 +29,11 @@ export class RequestManager {
     public request(idendifier: string, url: string, options: RequestInit = {}): Promise<string> {
         return new Promise((resolve, reject) => {
             const request = new Request(url, options, idendifier);
-            this.requestClient.setRequestCallback(request.getUuid(), (response: Response) => {
+            this.requestClient.setRequestCallback(request.getUuid(), (response: Response, error: Error) => {
+                if (error) {
+                    reject(error.getMessage())
+                    return
+                }
                 resolve(response.getData())
             })
             this.requestClient.send({
